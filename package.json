@@ -1,0 +1,27 @@
+{
+  "name": "deepthoughtjs",
+  "version": "0.1.0",
+  "description": "A JavaScript library for machine-learning in the browser",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc && webpack --mode production",
+    "dev": "concurrently \"tsc --watch\" \"webpack --watch --mode development\" \"npx serve\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KonstantinEger/DeepThoughtjs.git"
+  },
+  "author": "Konstantin Eger",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KonstantinEger/DeepThoughtjs/issues"
+  },
+  "homepage": "https://github.com/KonstantinEger/DeepThoughtjs#readme",
+  "devDependencies": {
+    "concurrently": "^4.1.0",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.3.3333",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3"
+  }
+}
