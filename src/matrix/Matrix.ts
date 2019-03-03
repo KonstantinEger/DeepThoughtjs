@@ -50,7 +50,7 @@ export class Matrix {
     if (a.cols !== b.rows) {
       throw new Error('Columns of "a" must match rows of "b"');
     }
-    const res = new Matrix(a.cols, b.rows, () => 1);
+    const res = new Matrix(a.rows, b.cols, () => 1);
     res.forEach((v, r, c) => {
       let sum = 0;
       for (let k = 0; k < a.cols; k++) {
@@ -58,6 +58,16 @@ export class Matrix {
       }
       res.data[r][c] = sum;
     });
+    return res;
+  }
+
+  public static from1DArray(array: number[]) {
+    return new Matrix(array.length, 1, (r, c) => array[r]);
+  }
+
+  public static to1DArray(matrix: Matrix) {
+    const res: number[] = [];
+    matrix.forEach(v => res.push(v));
     return res;
   }
 }
