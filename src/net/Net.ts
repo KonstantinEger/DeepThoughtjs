@@ -1,6 +1,6 @@
 import { Layer } from './Layer';
 import { Matrix } from '../matrix/Matrix';
-import { sigmoid } from './utils';
+import { sigmoid, randomFromArray, dsigmoid } from './utils';
 
 export class NeuralNet {
   private LEARNING_RATE = 0.01;
@@ -49,4 +49,58 @@ export class NeuralNet {
     }
     return Matrix.to1DArray(this.outputLayer.values);
   }
+
+  public train(trainingData: TrainingData[], iterations?: number) {
+    if (!iterations) iterations = 60000;
+
+    for (let x = 0; x < iterations; x++) {
+      const data: TrainingData = randomFromArray(trainingData);
+      let inputs = Matrix.from1DArray(data.data);
+      inputs = inputs.map(v => v + this.BIAS);
+      inputs = inputs.map(sigmoid);
+
+      let output = Matrix.from1DArray(this.feedforward(data.data));
+      let target = Matrix.from1DArray(data.expected);
+
+      let error = target.subtract(output);
+
+      let gradients = output.map(dsigmoid);
+      gradients = gradients.map((v, r, c) => v * error.get(r, c));
+      gradients = gradients.map(v => v * this.LEARNING_RATE);
+
+      let hidden_t = this.hiddenLayers[this.hiddenLayers.length-1].values.transpose();
+      let weights_h_o_delta = Matrix.multiply(gradients, hidden_t);
+      this.outputLayer.weights = this.outputLayer.weights.map((v, r, c) => v + weights_h_o_delta.get(r,c));
+
+      let weights_h_o_t = this.outputLayer.weights.transpose();
+      error = Matrix.multiply(weights_h_o_t, error);
+
+      for (let y = this.hiddenLayers.length - 1; y > 0; y--) {
+        gradients = this.hiddenLayers[y].values.map(dsigmoid);
+        gradients = gradients.map((v, r, c) => v * error.get(r, c));
+        gradients = gradients.map(v => v * this.LEARNING_RATE);
+
+        hidden_t = this.hiddenLayers[y-1].values.transpose();
+        let weights_h_h_delta = Matrix.multiply(gradients, hidden_t);
+        this.hiddenLayers[y].weights = this.hiddenLayers[y].weights.map((v, r, c) => v + weights_h_h_delta.get(r, c));
+
+        let weights_h_h_t = this.hiddenLayers[y].weights.transpose();
+        error = Matrix.multiply(weights_h_h_t, error);
+      }
+
+      gradients = this.hiddenLayers[0].values.map(dsigmoid);
+      gradients = gradients.map((v, r, c) => v * error.get(r, c)) ;
+      gradients = gradients.map(v => v * this.LEARNING_RATE);
+
+      let inputs_t = inputs.transpose();
+      let weights_i_h_delta = Matrix.multiply(gradients, inputs_t);
+      this.hiddenLayers[0].weights = this.hiddenLayers[0].weights.map((v, r, c) => v + weights_i_h_delta.get(r, c));
+    }
+    console.log('done');
+  }
+}
+
+interface TrainingData {
+  data: number[];
+  expected: number[];
 }

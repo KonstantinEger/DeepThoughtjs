@@ -26,6 +26,10 @@ export class Matrix {
     }
   }
 
+  public get(row: number, col: number) {
+    return this.data[row][col];
+  }
+
   public subtract(matrix: Matrix) {
     return new Matrix(this.rows, this.cols, (r, c) => this.data[r][c] - matrix.data[r][c]);
   }
